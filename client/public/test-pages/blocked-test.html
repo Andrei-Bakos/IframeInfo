@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Frame-Options Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .blocked-message {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            color: #c62828;
+        }
+
+        .blocked-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>X-Frame-Options Test Page</h1>
+        <p>This page simulates the behavior of a site that blocks iframe embedding via X-Frame-Options headers.</p>
+
+        <div id="content">
+            <h3>Original Content</h3>
+            <p>This content would normally be visible if the page allowed iframe embedding.</p>
+            <ul>
+                <li>Page Title: X-Frame-Options Test</li>
+                <li>Content Type: HTML</li>
+                <li>Security Policy: X-Frame-Options simulation</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Simulate X-Frame-Options blocking behavior
+        function simulateFrameBlocking() {
+            if (window.top !== window.self) {
+                // Running in an iframe
+                document.body.innerHTML = `
+                    <div class="container">
+                        <div class="blocked-message">
+                            <div class="blocked-icon">🚫</div>
+                            <h2>Content Blocked</h2>
+                            <p><strong>This page cannot be displayed in a frame.</strong></p>
+                            <p>The page has set <code>X-Frame-Options: DENY</code> or similar security headers.</p>
+                            <p>This simulates how real websites block iframe embedding for security reasons.</p>
+                        </div>
+                    </div>
+                `;
+
+                // Also attempt to break out of the frame (simulating aggressive frame-busting)
+                try {
+                    window.top.location = window.location;
+                } catch (e) {
+                    // This will fail due to cross-origin restrictions, which is expected
+                    console.log('Frame-busting attempt blocked by browser security');
+                }
+            }
+        }
+
+        // Run the simulation
+        simulateFrameBlocking();
+
+        // Log iframe detection
+        if (window.top !== window.self) {
+            console.log('Running in iframe - simulating X-Frame-Options blocking');
+        } else {
+            console.log('Running in main window - content displayed normally');
+        }
+    </script>
+</body>
+
+</html>

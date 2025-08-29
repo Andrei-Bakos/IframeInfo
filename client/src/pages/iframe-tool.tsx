@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 // Removed unused imports - components are embedded inline
-import { Code, ExternalLink, Shield, Terminal } from "lucide-react";
+import { Code, ExternalLink, Shield, Terminal, Loader2 } from "lucide-react";
 
 interface IframeInfo {
   title: string;
@@ -29,6 +29,7 @@ export default function IframeTool() {
   ]);
   const [selectedDataExtraction, setSelectedDataExtraction] = useState<string | null>(null);
   const [selectedQuickPreset, setSelectedQuickPreset] = useState<string | null>(null);
+  const [isIframeLoading, setIsIframeLoading] = useState<boolean>(false);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -41,6 +42,28 @@ export default function IframeTool() {
       buttonElement.style.color = '';
     });
   }, [selectedDataExtraction, selectedQuickPreset]);
+
+  // Load iframe when component mounts with initial URL
+  useEffect(() => {
+    if (iframeUrl && iframeRef.current) {
+      // Trigger initial load with a slight delay to ensure iframe is ready
+      const timer = setTimeout(() => {
+        loadIframe();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, []); // Only run on mount
+
+  // Auto-reload iframe when URL changes from preset selection
+  useEffect(() => {
+    if (selectedQuickPreset && iframeRef.current) {
+      // Add a small delay to ensure state updates are complete
+      const timer = setTimeout(() => {
+        loadIframe();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [iframeUrl, selectedQuickPreset]); // Trigger when URL or preset changes
 
   const logToConsole = (message: string, type: 'info' | 'error' | 'warning' | 'success' = 'info') => {
     setConsoleEntries(prev => [...prev, { message, type, timestamp: new Date() }]);
@@ -60,13 +83,29 @@ export default function IframeTool() {
       return;
     }
 
+    setIsIframeLoading(true);
     updateStatus('Loading...', 'warning');
     logToConsole(`Loading iframe with URL: ${iframeUrl}`);
 
+    // Timeout fallback in case iframe doesn't trigger load/error events
+    const timeout = setTimeout(() => {
+      setIsIframeLoading(false);
+      logToConsole('Loading timeout - iframe may have loaded but events were not triggered', 'warning');
+    }, 10000); // 10 second timeout
+
     if (iframeRef.current) {
-      iframeRef.current.src = iframeUrl;
+      // Force reload by adding a timestamp parameter for non-data URLs
+      let urlToLoad = iframeUrl;
+      if (!iframeUrl.startsWith('data:') && !iframeUrl.startsWith('about:')) {
+        const separator = iframeUrl.includes('?') ? '&' : '?';
+        urlToLoad = `${iframeUrl}${separator}_t=${Date.now()}`;
+      }
+
+      iframeRef.current.src = urlToLoad;
 
       iframeRef.current.onload = () => {
+        clearTimeout(timeout);
+        setIsIframeLoading(false);
         updateStatus('Loaded', 'success');
         logToConsole('Iframe loaded successfully', 'success');
 
@@ -85,6 +124,8 @@ export default function IframeTool() {
       };
 
       iframeRef.current.onerror = () => {
+        clearTimeout(timeout);
+        setIsIframeLoading(false);
         updateStatus('Load Error', 'error');
         logToConsole('Failed to load iframe - this could be due to network issues or security headers', 'error');
       };
@@ -97,19 +138,21 @@ export default function IframeTool() {
       'same-origin': './test-pages/same-origin.html',
       'form-test': './test-pages/form-test.html',
       'secure-test': './test-pages/secure-test.html',
-      'blocked-test': 'https://github.com', // This will be blocked by X-Frame-Options
+      'cross-origin': 'https://httpbin.org/html', // Cross-origin content to test data extraction limitations
       'data-url': 'data:text/html,<h1 style="font-family: Arial; color: %23333; padding: 20px;">Sample Data URL</h1><p style="font-family: Arial; color: %23666; padding: 0 20px;">This is content from a data URL - fully accessible.</p><script>console.log("Data URL script executed");</script>'
     };
 
     if (presets[preset as keyof typeof presets]) {
       const url = presets[preset as keyof typeof presets];
-      setIframeUrl(url);
 
-      if (preset === 'blocked-test') {
-        logToConsole('Loading blocked test page (demonstrates X-Frame-Options: DENY)', 'warning');
+      logToConsole(`Loading preset: ${preset} -> ${url}`);
+
+      if (preset === 'cross-origin') {
+        logToConsole('Loading cross-origin content to test data extraction capabilities', 'info');
       }
 
-      setTimeout(loadIframe, 100);
+      // Update URL state - useEffect will handle the actual loading
+      setIframeUrl(url);
     }
   };
 
@@ -355,15 +398,30 @@ export default function IframeTool() {
               <div className="space-y-3">
                 <div>
                   <Label htmlFor="iframe-url" className="text-sm font-medium text-muted-foreground">Source URL</Label>
-                  <Input
-                    id="iframe-url"
-                    data-testid="input-iframe-url"
-                    type="text"
-                    value={iframeUrl}
-                    onChange={(e) => setIframeUrl(e.target.value)}
-                    placeholder="Enter URL or select preset..."
-                    className="mt-1"
-                  />
+                  <div className="flex space-x-2 mt-1">
+                    <Input
+                      id="iframe-url"
+                      data-testid="input-iframe-url"
+                      type="text"
+                      value={iframeUrl}
+                      onChange={(e) => setIframeUrl(e.target.value)}
+                      placeholder="Enter URL or select preset..."
+                      className="flex-1"
+                      onKeyDown={(e) => e.key === 'Enter' && loadIframe()}
+                    />
+                    <Button
+                      onClick={loadIframe}
+                      size="sm"
+                      className="px-3"
+                      disabled={!iframeUrl || isIframeLoading}
+                    >
+                      {isIframeLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        '🔗 Load'
+                      )}
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -410,24 +468,24 @@ export default function IframeTool() {
                       📝 Form Test Page
                     </Button>
                     <Button
-                      data-testid="button-preset-blocked-test"
-                      onClick={() => loadPreset('blocked-test')}
-                      variant={selectedQuickPreset === 'blocked-test' ? 'default' : 'secondary'}
+                      data-testid="button-preset-cross-origin"
+                      onClick={() => loadPreset('cross-origin')}
+                      variant={selectedQuickPreset === 'cross-origin' ? 'default' : 'secondary'}
                       className="justify-start text-sm h-10 cursor-pointer transition-colors duration-200"
                       onMouseEnter={(e) => {
-                        if (selectedQuickPreset !== 'blocked-test') {
+                        if (selectedQuickPreset !== 'cross-origin') {
                           e.currentTarget.style.backgroundColor = '#4d576d';
                           e.currentTarget.style.color = 'white';
                         }
                       }}
                       onMouseLeave={(e) => {
-                        if (selectedQuickPreset !== 'blocked-test') {
+                        if (selectedQuickPreset !== 'cross-origin') {
                           e.currentTarget.style.backgroundColor = '';
                           e.currentTarget.style.color = '';
                         }
                       }}
                     >
-                      🚫 Blocked by X-Frame-Options
+                      🌐 Cross-Origin Content
                     </Button>
                     <Button
                       data-testid="button-preset-data-url"
@@ -585,8 +643,16 @@ export default function IframeTool() {
                   data-testid="button-reload-iframe"
                   onClick={loadIframe}
                   size="sm"
+                  disabled={isIframeLoading}
                 >
-                  🔄 Reload
+                  {isIframeLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                      Loading
+                    </>
+                  ) : (
+                    '🔄 Reload'
+                  )}
                 </Button>
                 <Badge
                   variant={
@@ -601,7 +667,15 @@ export default function IframeTool() {
               </div>
             </div>
 
-            <div className="iframe-container bg-white rounded-lg border-2 border-border">
+            <div className="iframe-container bg-white rounded-lg border-2 border-border relative">
+              {isIframeLoading && (
+                <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10 rounded-lg">
+                  <div className="flex flex-col items-center space-y-3">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <span className="text-sm text-muted-foreground">Loading iframe content...</span>
+                  </div>
+                </div>
+              )}
               <iframe
                 ref={iframeRef}
                 data-testid="iframe-test"
