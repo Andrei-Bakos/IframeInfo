@@ -134,18 +134,20 @@ export default function IframeTool() {
 
   const loadPreset = (preset: string) => {
     setSelectedQuickPreset(preset);
+    // Use absolute paths that work with GitHub Pages base path
+    const basePath = import.meta.env.BASE_URL || '/';
     const presets = {
-      'same-origin': './test-pages/same-origin.html',
-      'form-test': './test-pages/form-test.html',
-      'secure-test': './test-pages/secure-test.html',
-      'cross-origin': 'https://httpbin.org/html', // Cross-origin content to test data extraction limitations
+      'same-origin': `${basePath}test-pages/same-origin.html`,
+      'form-test': `${basePath}test-pages/form-test.html`,
+      'secure-test': `${basePath}test-pages/secure-test.html`,
+      'cross-origin': 'https://jsonplaceholder.typicode.com/', // Cross-origin content to test data extraction limitations
       'data-url': 'data:text/html,<h1 style="font-family: Arial; color: %23333; padding: 20px;">Sample Data URL</h1><p style="font-family: Arial; color: %23666; padding: 0 20px;">This is content from a data URL - fully accessible.</p><script>console.log("Data URL script executed");</script>'
     };
 
     if (presets[preset as keyof typeof presets]) {
       const url = presets[preset as keyof typeof presets];
 
-      logToConsole(`Loading preset: ${preset} -> ${url}`);
+      logToConsole(`Loading preset: ${preset} -> ${url} (base: ${basePath})`);
 
       if (preset === 'cross-origin') {
         logToConsole('Loading cross-origin content to test data extraction capabilities', 'info');
