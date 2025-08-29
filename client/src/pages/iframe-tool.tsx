@@ -4,9 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import IframeControls from "@/components/iframe-controls";
-import IframeResults from "@/components/iframe-results";
-import ConsoleOutput from "@/components/console-output";
+// Removed unused imports - components are embedded inline
 import { Code, ExternalLink, Shield, Terminal } from "lucide-react";
 
 interface IframeInfo {
@@ -501,8 +499,94 @@ export default function IframeTool() {
           {/* Results Section */}
           <div className="flex-1 p-4 overflow-y-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <IframeResults results={results} />
-              <ConsoleOutput entries={consoleEntries} onClear={clearConsole} />
+              {/* Extraction Results */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium flex items-center">
+                  <Terminal className="text-primary mr-2 h-5 w-5" />
+                  Extraction Results
+                </h3>
+                
+                <div className="space-y-4" data-testid="results-container">
+                  {results.length === 0 ? (
+                    <Card className="p-4 bg-card border border-border">
+                      <p className="text-muted-foreground text-sm">
+                        <Shield className="inline mr-2 h-4 w-4" />
+                        Click any extraction button to see results here
+                      </p>
+                    </Card>
+                  ) : (
+                    results.map((result, index) => (
+                      <Card
+                        key={index}
+                        className={`p-4 bg-card border ${
+                          result.type === 'error' ? 'border-destructive bg-red-950/20' :
+                          result.type === 'warning' ? 'border-yellow-500 bg-yellow-950/20' :
+                          result.type === 'success' ? 'border-green-500 bg-green-950/20' :
+                          'border-border'
+                        }`}
+                        data-testid={`result-${index}`}
+                      >
+                        <h4 className="font-medium mb-2 flex items-center">
+                          {result.type === 'error' ? <ExternalLink className="h-4 w-4 text-destructive" /> :
+                           result.type === 'success' ? <Shield className="h-4 w-4 text-green-500" /> :
+                           result.type === 'warning' ? <ExternalLink className="h-4 w-4 text-yellow-500" /> :
+                           <Shield className="h-4 w-4 text-blue-500" />}
+                          <span className="ml-2">{result.title}</span>
+                          <Badge
+                            variant={result.type === 'error' ? 'destructive' : 'secondary'}
+                            className="ml-auto"
+                          >
+                            {result.type}
+                          </Badge>
+                        </h4>
+                        <div className="font-mono text-sm whitespace-pre-wrap text-muted-foreground">
+                          {result.content}
+                        </div>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Console Output */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium flex items-center">
+                  <Terminal className="text-primary mr-2 h-5 w-5" />
+                  Console Output
+                </h3>
+                
+                <Card className="bg-card border border-border">
+                  <div className="p-3 border-b border-border">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Debug Console</span>
+                      <Button
+                        data-testid="button-clear-console"
+                        onClick={clearConsole}
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        <Terminal className="h-3 w-3 mr-1" />
+                        Clear
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="console-output p-3 font-mono text-sm space-y-1" data-testid="console-output">
+                    {consoleEntries.map((entry, index) => (
+                      <div key={index} className={
+                        entry.type === 'error' ? 'status-error' :
+                        entry.type === 'warning' ? 'status-warning' :
+                        entry.type === 'success' ? 'status-success' :
+                        'text-muted-foreground'
+                      }>
+                        <span className="text-primary">
+                          [{entry.timestamp.toLocaleTimeString()}]
+                        </span> {entry.message}
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </div>
             </div>
           </div>
         </div>
