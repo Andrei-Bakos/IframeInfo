@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Test Page</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        p { color: #666; line-height: 1.6; }
+        .warning { background: #fff3cd; padding: 15px; border-radius: 5px; border-left: 4px solid #ffc107; color: #856404; }
+        .secure-content { background: #d4edda; padding: 15px; border-radius: 5px; border-left: 4px solid #28a745; color: #155724; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Secure Test Page</h1>
+        <p>This page demonstrates security considerations for iframe embedding.</p>
+        
+        <div class="warning">
+            <strong>Warning:</strong> This page has security restrictions for iframe embedding.
+        </div>
+        
+        <div class="secure-content">
+            <h3>Security Features</h3>
+            <ul>
+                <li>Content Security Policy enabled</li>
+                <li>X-Frame-Options set to DENY</li>
+                <li>Secure headers implemented</li>
+            </ul>
+        </div>
+        
+        <p>Attempting to embed this page in an iframe may be blocked by the browser due to security policies.</p>
+        
+        <div id="sensitive-data" style="display: none;">
+            <h3>Sensitive Information</h3>
+            <p>This content is hidden and should not be accessible via iframe extraction.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Detect if running in iframe
+        if (window.top !== window.self) {
+            document.body.innerHTML = '<div style="padding: 20px; text-align: center; color: red;"><h2>Access Denied</h2><p>This page cannot be displayed in a frame.</p></div>';
+        }
+    </script>
+</body>
+</html>

@@ -81,10 +81,10 @@ export default function IframeTool() {
 
   const loadPreset = (preset: string) => {
     const presets = {
-      'same-origin': '/api/test-pages/same-origin',
-      'form-test': '/api/test-pages/form-test',
-      'secure-test': '/api/test-pages/secure-test',
-      'blocked-test': '/api/test-pages/blocked',
+      'same-origin': './test-pages/same-origin.html',
+      'form-test': './test-pages/form-test.html',
+      'secure-test': './test-pages/secure-test.html',
+      'blocked-test': 'https://github.com', // This will be blocked by X-Frame-Options
       'data-url': 'data:text/html,<h1 style="font-family: Arial; color: %23333; padding: 20px;">Sample Data URL</h1><p style="font-family: Arial; color: %23666; padding: 0 20px;">This is content from a data URL - fully accessible.</p><script>console.log("Data URL script executed");</script>'
     };
 

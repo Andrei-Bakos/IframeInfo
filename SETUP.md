@@ -8,12 +8,29 @@
    ```
 
 2. **Start the development server:**
+   
+   **For Windows:**
+   ```cmd
+   npx cross-env NODE_ENV=development tsx server/index.ts
+   ```
+   
+   **For Mac/Linux:**
    ```bash
    npm run dev
    ```
 
 3. **Open your browser:**
    Go to `http://localhost:5000`
+
+## Alternative Setup (Works on all platforms)
+
+If you encounter environment variable issues, you can start the server directly:
+
+```bash
+npx tsx server/index.ts
+```
+
+This will run the server without setting NODE_ENV (it defaults to development).
 
 ## What this tool does
 
