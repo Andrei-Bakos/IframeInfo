@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Interaction Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 500px; 
+            margin: 0 auto; 
+            background: rgba(255,255,255,0.1); 
+            padding: 30px; 
+            border-radius: 15px; 
+            backdrop-filter: blur(10px); 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        h1 { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            font-size: 28px;
+        }
+        .form-section { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin-bottom: 20px; 
+        }
+        .form-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 8px; 
+            margin-bottom: 15px; 
+            font-size: 14px;
+            box-sizing: border-box;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+        }
+        button { 
+            width: 100%; 
+            background: #ff6b6b; 
+            color: white; 
+            border: none; 
+            padding: 15px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: bold; 
+            transition: all 0.3s; 
+        }
+        button:hover { 
+            background: #ff5252; 
+            transform: translateY(-2px); 
+        }
+        .checkbox-group { 
+            display: flex; 
+            align-items: center; 
+            margin-bottom: 15px; 
+        }
+        .checkbox-group input { 
+            width: auto; 
+            margin-right: 10px; 
+            margin-bottom: 0;
+        }
+        .checkbox-group label {
+            color: #fff;
+            cursor: pointer;
+        }
+        #output { 
+            background: rgba(0,0,0,0.3); 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-family: monospace; 
+            font-size: 12px; 
+            margin-top: 20px;
+            min-height: 50px;
+            white-space: pre-wrap;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #4ade80;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Advanced Form Test</h1>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <form id="advancedForm" data-testid="advanced-form">
+            <div class="form-section">
+                <h3>Personal Information</h3>
+                <input type="text" name="fullName" placeholder="Full Name" required data-testid="input-fullname">
+                <input type="email" name="email" placeholder="Email Address" required data-testid="input-email">
+                <input type="tel" name="phone" placeholder="Phone Number" data-testid="input-phone">
+                <input type="date" name="birthDate" data-testid="input-birthdate">
+            </div>
+
+            <div class="form-section">
+                <h3>Preferences</h3>
+                <select name="country" required data-testid="select-country">
+                    <option value="">Select Country</option>
+                    <option value="us">United States</option>
+                    <option value="uk">United Kingdom</option>
+                    <option value="ca">Canada</option>
+                    <option value="de">Germany</option>
+                    <option value="fr">France</option>
+                    <option value="jp">Japan</option>
+                    <option value="au">Australia</option>
+                </select>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" name="newsletter" id="newsletter" data-testid="checkbox-newsletter">
+                    <label for="newsletter">Subscribe to newsletter</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" name="terms" id="terms" required data-testid="checkbox-terms">
+                    <label for="terms">I agree to terms and conditions</label>
+                </div>
+                
+                <textarea name="comments" placeholder="Additional comments..." rows="4" data-testid="textarea-comments"></textarea>
+            </div>
+
+            <button type="submit" data-testid="button-submit">🚀 Submit Advanced Form</button>
+        </form>
+
+        <div id="output" data-testid="form-output"></div>
+
+        <script>
+            const form = document.getElementById('advancedForm');
+            const output = document.getElementById('output');
+            const progressFill = document.getElementById('progressFill');
+            
+            // Track form completion
+            function updateProgress() {
+                const inputs = form.querySelectorAll('input[required], select[required]');
+                let filled = 0;
+                inputs.forEach(input => {
+                    if (input.type === 'checkbox') {
+                        if (input.checked) filled++;
+                    } else if (input.value.trim()) {
+                        filled++;
+                    }
+                });
+                const progress = (filled / inputs.length) * 100;
+                progressFill.style.width = progress + '%';
+            }
+
+            // Auto-fill some data for testing
+            setTimeout(() => {
+                form.fullName.value = 'Jane Smith';
+                form.email.value = 'jane.smith@example.com';
+                form.phone.value = '+1-555-0987';
+                form.birthDate.value = '1990-05-15';
+                form.country.value = 'us';
+                updateProgress();
+                output.innerHTML = '✅ Form auto-filled with test data for demonstration';
+            }, 1000);
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const data = {};
+                
+                for (let [key, value] of formData.entries()) {
+                    data[key] = value;
+                }
+                
+                // Add checkboxes that might not be in FormData
+                data.newsletter = form.newsletter.checked;
+                data.terms = form.terms.checked;
+                data.formCompletionTime = new Date().toISOString();
+                data.userAgent = navigator.userAgent.substring(0, 50) + '...';
+                
+                output.innerHTML = '📤 Form Submitted Successfully!\n\nSubmitted Data:\n' + JSON.stringify(data, null, 2);
+                
+                // Try to notify parent frame
+                try {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'formSubmission',
+                            data: data,
+                            source: 'form-test-iframe'
+                        }, '*');
+                    }
+                } catch (e) {
+                    console.log('Cannot post message to parent');
+                }
+            });
+
+            // Real-time validation feedback
+            form.addEventListener('input', function(e) {
+                updateProgress();
+                
+                if (e.target.type === 'email') {
+                    const isValid = e.target.checkValidity();
+                    e.target.style.borderLeft = isValid ? '4px solid #4ade80' : '4px solid #f87171';
+                }
+                
+                if (e.target.type === 'tel') {
+                    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+                    const isValid = phoneRegex.test(e.target.value) || e.target.value === '';
+                    e.target.style.borderLeft = isValid ? '4px solid #4ade80' : '4px solid #f87171';
+                }
+            });
+
+            // Form field focus tracking
+            const fieldInteractions = {};
+            form.addEventListener('focus', function(e) {
+                if (e.target.name) {
+                    fieldInteractions[e.target.name] = {
+                        focused: true,
+                        focusTime: Date.now()
+                    };
+                }
+            }, true);
+
+            form.addEventListener('blur', function(e) {
+                if (e.target.name && fieldInteractions[e.target.name]) {
+                    fieldInteractions[e.target.name].timeSpent = 
+                        Date.now() - fieldInteractions[e.target.name].focusTime;
+                }
+            }, true);
+
+            // Initialize
+            updateProgress();
+            output.innerHTML = '🎯 Advanced form ready for testing\n⏱️ Auto-fill will occur in 1 second...';
+            
+            console.log('Form test page initialized');
+        </script>
+    </div>
+</body>
+</html>

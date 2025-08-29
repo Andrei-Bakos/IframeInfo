@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Test Page</title>
+    <style>
+        body { 
+            font-family: 'Courier New', monospace; 
+            padding: 20px; 
+            background: #0d1117; 
+            color: #c9d1d9; 
+            margin: 0;
+            line-height: 1.6;
+        }
+        .terminal { 
+            background: #161b22; 
+            border: 1px solid #30363d; 
+            border-radius: 6px; 
+            padding: 20px; 
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .prompt { 
+            color: #58a6ff; 
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .warning { 
+            color: #f85149; 
+            background: rgba(248, 81, 73, 0.1); 
+            padding: 15px; 
+            border-radius: 6px; 
+            margin: 15px 0; 
+            border-left: 4px solid #f85149;
+        }
+        .success { 
+            color: #3fb950; 
+            background: rgba(63, 185, 80, 0.1); 
+            padding: 15px; 
+            border-radius: 6px; 
+            margin: 15px 0; 
+            border-left: 4px solid #3fb950;
+        }
+        .info { 
+            color: #58a6ff; 
+            background: rgba(88, 166, 255, 0.1); 
+            padding: 15px; 
+            border-radius: 6px; 
+            margin: 15px 0; 
+            border-left: 4px solid #58a6ff;
+        }
+        pre { 
+            background: #0d1117; 
+            padding: 15px; 
+            border-radius: 6px; 
+            overflow-x: auto; 
+            border: 1px solid #30363d;
+            color: #f0f6fc;
+        }
+        .hidden-data { 
+            display: none; 
+        }
+        button { 
+            background: #238636; 
+            color: white; 
+            border: none; 
+            padding: 10px 15px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            margin: 5px; 
+            font-family: inherit;
+            transition: background-color 0.2s;
+        }
+        button:hover { 
+            background: #2ea043; 
+        }
+        .danger-btn { 
+            background: #da3633; 
+        }
+        .danger-btn:hover { 
+            background: #f85149; 
+        }
+        h2, h3 {
+            color: #f0f6fc;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        #actionLog {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .log-entry.warning {
+            background: rgba(248, 81, 73, 0.1);
+            color: #f85149;
+        }
+        .log-entry.success {
+            background: rgba(63, 185, 80, 0.1);
+            color: #3fb950;
+        }
+        .log-entry.info {
+            background: rgba(88, 166, 255, 0.1);
+            color: #58a6ff;
+        }
+        .security-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #238636;
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 2px;
+        }
+        .vulnerability-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #da3633;
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div class="prompt">$ security-test --mode iframe --verbose --target same-origin</div>
+        
+        <div class="warning">
+            <strong>⚠️ SECURITY TESTING ENVIRONMENT</strong><br>
+            This page simulates a secure application with sensitive data and security controls.
+            Since this is same-origin, parent frames can still access most content.
+        </div>
+
+        <div class="info">
+            <strong>🔍 Security Headers Analysis:</strong><br>
+            <span class="security-badge">X-Frame-Options: SAMEORIGIN</span>
+            <span class="security-badge">Content-Type: text/html</span><br>
+            <span class="vulnerability-badge">CSP: Not Set</span>
+            <span class="vulnerability-badge">HTTPS: Not Enforced</span>
+        </div>
+
+        <h2>🔐 Simulated Protected Content</h2>
+        <p>This section contains simulated sensitive data that would typically be protected in a real application.</p>
+
+        <div class="success">
+            <strong>✅ Same-Origin Access:</strong><br>
+            Since this page is served from the same origin as the parent, the iframe can access:
+            <ul>
+                <li>All DOM content and manipulation</li>
+                <li>Form data and user interactions</li>
+                <li>Local/session storage</li>
+                <li>Cookies and authentication tokens</li>
+                <li>JavaScript execution context</li>
+            </ul>
+        </div>
+
+        <pre id="sensitiveData" data-testid="sensitive-data">
+🔑 SIMULATED SENSITIVE CONFIGURATION:
+=====================================
+API_KEY: sk_live_51HhGv2eZvKYlo2C8L9mPQ7X...
+DATABASE_URL: postgresql://admin:SecurePass123@db.example.com:5432/prod_db
+JWT_SECRET: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.super_secret_key
+ENCRYPTION_KEY: aes256_key_f4d7e8c9b2a1e5f8d3c6b9a2e5f8d1c4
+STRIPE_SECRET: sk_live_51AbCdEf...
+AWS_ACCESS_KEY: AKIAIOSFODNN7EXAMPLE
+REDIS_URL: redis://:password123@redis.example.com:6379/0
+        </pre>
+
+        <div class="hidden-data" id="hiddenSecrets" data-testid="hidden-secrets">
+            <h3>🕵️ Hidden Application Secrets</h3>
+            <div class="warning">
+                <strong>🚨 CRITICAL VULNERABILITIES DETECTED:</strong>
+                <ul>
+                    <li>Admin credentials: admin / SuperSecure123!</li>
+                    <li>Database backup passwords: backup_user / DbBackup2024</li>
+                    <li>Internal API endpoints: /admin/users, /internal/financial-data</li>
+                    <li>Debug tokens: debug_token_a1b2c3d4e5f6</li>
+                    <li>Service accounts: service@example.com / ServiceKey789</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3>🧪 Security Interaction Tests</h3>
+        <button onclick="revealSecrets()" data-testid="button-reveal-secrets">🔓 Reveal Hidden Secrets</button>
+        <button onclick="simulateLogin()" class="danger-btn" data-testid="button-simulate-login">👤 Simulate Authentication</button>
+        <button onclick="accessStorage()" data-testid="button-access-storage">💾 Access Browser Storage</button>
+        <button onclick="attemptEscape()" class="danger-btn" data-testid="button-attempt-escape">🚪 Attempt Frame Escape</button>
+        <button onclick="gatherFingerprint()" data-testid="button-gather-fingerprint">🔍 Gather Fingerprint</button>
+
+        <div id="actionLog" data-testid="action-log"></div>
+
+        <script>
+            // Simulate sensitive storage data
+            try {
+                localStorage.setItem('authToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkFkbWluIFVzZXIiLCJpYXQiOjE1MTYyMzkwMjJ9.jwt_token_here');
+                localStorage.setItem('userPreferences', JSON.stringify({
+                    theme: 'dark',
+                    notifications: true,
+                    adminMode: true,
+                    securityLevel: 'high'
+                }));
+                
+                sessionStorage.setItem('currentSession', JSON.stringify({
+                    userId: 'admin_12345',
+                    username: 'admin',
+                    role: 'super_administrator',
+                    permissions: ['read', 'write', 'delete', 'admin', 'system'],
+                    loginTime: new Date().toISOString(),
+                    lastActivity: Date.now()
+                }));
+                
+                sessionStorage.setItem('csrfToken', 'csrf_token_a1b2c3d4e5f6g7h8i9j0');
+            } catch (e) {
+                console.warn('Storage access failed:', e);
+            }
+
+            // Set authentication cookies
+            document.cookie = 'authToken=secure_auth_token_123; path=/; secure; samesite=strict';
+            document.cookie = 'sessionId=sess_a1b2c3d4e5f6; path=/; secure; httponly';
+            document.cookie = 'userRole=administrator; path=/';
+
+            function log(message, type = 'info') {
+                const logDiv = document.getElementById('actionLog');
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${type}`;
+                const timestamp = new Date().toLocaleTimeString();
+                logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+                logDiv.appendChild(logEntry);
+                logDiv.scrollTop = logDiv.scrollHeight;
+                
+                // Also log to browser console
+                console.log(`[Security Test] ${message}`);
+            }
+
+            function revealSecrets() {
+                const hiddenEl = document.getElementById('hiddenSecrets');
+                hiddenEl.style.display = 'block';
+                log('🔓 SECURITY BREACH: Hidden secrets exposed to parent frame!', 'warning');
+                log('📊 Impact: Critical application secrets now accessible', 'warning');
+            }
+
+            function simulateLogin() {
+                const username = prompt('🔐 Enter username for security test:');
+                if (username) {
+                    log(`👤 Authentication simulated for user: "${username}"`, 'success');
+                    log(`🔑 Session token generated: sess_${Math.random().toString(36).substring(7)}`, 'info');
+                    
+                    // Simulate successful login
+                    document.cookie = `loggedInUser=${username}; path=/`;
+                    sessionStorage.setItem('lastLogin', new Date().toISOString());
+                    
+                    setTimeout(() => {
+                        log('✅ Authentication successful - user privileges elevated', 'success');
+                    }, 1000);
+                }
+            }
+
+            function accessStorage() {
+                try {
+                    const authToken = localStorage.getItem('authToken');
+                    const userSession = sessionStorage.getItem('currentSession');
+                    const preferences = localStorage.getItem('userPreferences');
+                    
+                    log('💾 Local Storage Access:', 'info');
+                    log(`📍 Auth Token: ${authToken ? 'Found (JWT)' : 'Not found'}`, 'info');
+                    log(`📍 User Preferences: ${preferences ? 'Found (JSON)' : 'Not found'}`, 'info');
+                    
+                    log('💾 Session Storage Access:', 'info');
+                    log(`📍 Current Session: ${userSession ? 'Found (Admin)' : 'Not found'}`, 'info');
+                    
+                    if (userSession) {
+                        const session = JSON.parse(userSession);
+                        log(`🚨 CRITICAL: Admin session accessible - Role: ${session.role}`, 'warning');
+                    }
+                    
+                    // Cookie access
+                    log(`🍪 Cookies: ${document.cookie ? 'Accessible' : 'None found'}`, 'info');
+                    
+                } catch (e) {
+                    log(`❌ Storage access error: ${e.message}`, 'warning');
+                }
+            }
+
+            function attemptEscape() {
+                log('🚪 Attempting frame escape (same-origin allows this)...', 'info');
+                
+                try {
+                    if (window.parent && window.parent !== window) {
+                        log('✅ Parent window accessible - same origin detected', 'success');
+                        log('🔓 Can access parent DOM, manipulate content', 'warning');
+                        log('🔓 Can redirect parent window if needed', 'warning');
+                        
+                        // Demonstrate parent access (safe demo)
+                        try {
+                            const parentTitle = window.parent.document.title;
+                            log(`📄 Parent page title: "${parentTitle}"`, 'success');
+                        } catch (e) {
+                            log(`❌ Parent access blocked: ${e.message}`, 'info');
+                        }
+                    } else {
+                        log('ℹ️ No parent frame detected', 'info');
+                    }
+                } catch (e) {
+                    log(`❌ Frame escape failed: ${e.message}`, 'warning');
+                }
+            }
+
+            function gatherFingerprint() {
+                log('🔍 Gathering browser fingerprint...', 'info');
+                
+                const fingerprint = {
+                    userAgent: navigator.userAgent,
+                    language: navigator.language,
+                    platform: navigator.platform,
+                    cookieEnabled: navigator.cookieEnabled,
+                    doNotTrack: navigator.doNotTrack,
+                    hardwareConcurrency: navigator.hardwareConcurrency,
+                    maxTouchPoints: navigator.maxTouchPoints,
+                    screen: `${screen.width}x${screen.height}`,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    colorDepth: screen.colorDepth,
+                    deviceMemory: navigator.deviceMemory || 'unknown'
+                };
+                
+                log('📊 Browser Fingerprint Collected:', 'success');
+                Object.entries(fingerprint).forEach(([key, value]) => {
+                    log(`  📍 ${key}: ${value}`, 'info');
+                });
+                
+                // Attempt to access additional APIs
+                try {
+                    if ('geolocation' in navigator) {
+                        log('🌍 Geolocation API: Available', 'warning');
+                    }
+                    if ('camera' in navigator.mediaDevices || 'getUserMedia' in navigator) {
+                        log('📷 Camera/Media API: Available', 'warning');
+                    }
+                } catch (e) {
+                    log('🔒 Extended APIs: Access restricted', 'info');
+                }
+            }
+
+            // Initialize security test
+            log('🚀 Security test environment initialized', 'success');
+            log('📊 Simulated environment: Production-like security test', 'info');
+            log(`🌐 Origin: ${window.location.origin}`, 'info');
+            log(`📄 Page contains ${document.querySelectorAll('*').length} DOM elements`, 'info');
+
+            // Periodic security monitoring simulation
+            let heartbeatCount = 0;
+            setInterval(() => {
+                heartbeatCount++;
+                const cpuUsage = Math.floor(Math.random() * 30) + 10;
+                const memUsage = Math.floor(Math.random() * 40) + 30;
+                log(`⏰ Security Monitor #${heartbeatCount}: CPU ${cpuUsage}%, Memory ${memUsage}%`, 'info');
+                
+                // Simulate security events
+                if (heartbeatCount % 3 === 0) {
+                    const events = [
+                        'Login attempt detected',
+                        'API key accessed',
+                        'Database query executed',
+                        'File system access logged',
+                        'Network request monitored'
+                    ];
+                    const randomEvent = events[Math.floor(Math.random() * events.length)];
+                    log(`🔍 Security Event: ${randomEvent}`, 'warning');
+                }
+            }, 8000);
+
+            // Track user interactions
+            document.addEventListener('click', function(e) {
+                if (e.target.tagName === 'BUTTON') {
+                    log(`🖱️ User interaction: ${e.target.textContent.trim()}`, 'info');
+                }
+            });
+
+            console.log('Security test page fully loaded and monitoring active');
+        </script>
+    </div>
+</body>
+</html>

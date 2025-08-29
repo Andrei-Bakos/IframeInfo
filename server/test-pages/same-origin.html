@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Same Origin Test Page</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f5f5f5; 
+            margin: 0;
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        h1 { 
+            color: #333; 
+            margin-bottom: 20px; 
+            font-size: 28px;
+        }
+        p { 
+            color: #666; 
+            line-height: 1.6; 
+            margin-bottom: 20px; 
+        }
+        .form-group { 
+            margin-bottom: 15px; 
+        }
+        input, textarea { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button { 
+            background: #0ea5e9; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 14px; 
+        }
+        button:hover { 
+            background: #0284c7; 
+        }
+        .info-box { 
+            background: #e0f2fe; 
+            border: 1px solid #0ea5e9; 
+            padding: 15px; 
+            border-radius: 4px; 
+            margin-top: 20px; 
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #0284c7;
+        }
+        .info-box ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .dynamic-content {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 Same Origin Content</h1>
+        <p>This page is served from the same origin as the parent page, which means the parent JavaScript can access all content, manipulate the DOM, and interact with forms.</p>
+        
+        <div class="info-box">
+            <h3>✅ What the parent can access:</h3>
+            <ul>
+                <li>Document title, URL, and all content</li>
+                <li>All DOM elements and their properties</li>
+                <li>Form values and interactions</li>
+                <li>Event listeners and DOM manipulation</li>
+                <li>Local storage and cookies</li>
+                <li>Window location and navigation</li>
+            </ul>
+        </div>
+
+        <form id="testForm" data-testid="same-origin-form">
+            <h3>Test Form</h3>
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Username" required data-testid="input-username" />
+            </div>
+            <div class="form-group">
+                <input type="email" name="email" placeholder="Email Address" required data-testid="input-email" />
+            </div>
+            <div class="form-group">
+                <textarea name="message" placeholder="Your message..." rows="4" data-testid="textarea-message"></textarea>
+            </div>
+            <button type="submit" data-testid="button-submit">Submit Form</button>
+        </form>
+
+        <div id="dynamicContent"></div>
+
+        <script>
+            document.getElementById('testForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+                alert('Form submitted with data: ' + JSON.stringify(data, null, 2));
+                
+                // Log to parent console if accessible
+                try {
+                    if (window.parent && window.parent !== window) {
+                        console.log('Same-origin form submission:', data);
+                    }
+                } catch (e) {
+                    console.log('Cannot access parent window');
+                }
+            });
+
+            // Add some dynamic content
+            setTimeout(() => {
+                const dynamicDiv = document.createElement('div');
+                dynamicDiv.className = 'dynamic-content';
+                dynamicDiv.innerHTML = '<p><strong>⏰ Dynamic content loaded at:</strong> ' + new Date().toLocaleTimeString() + '</p>';
+                document.getElementById('dynamicContent').appendChild(dynamicDiv);
+            }, 2000);
+
+            // Set some test data in storage
+            try {
+                localStorage.setItem('sameOriginTest', 'accessible-data');
+                sessionStorage.setItem('iframeSession', 'session-data-' + Math.random());
+            } catch (e) {
+                console.log('Storage access failed:', e);
+            }
+
+            // Add some metadata for testing
+            document.title = 'Same Origin Test - ' + new Date().toLocaleTimeString();
+            
+            // Create a custom event that parent can listen to
+            const customEvent = new CustomEvent('iframeReady', {
+                detail: {
+                    timestamp: Date.now(),
+                    origin: window.location.origin,
+                    type: 'same-origin'
+                }
+            });
+            
+            try {
+                if (window.parent && window.parent !== window) {
+                    window.parent.document.dispatchEvent(customEvent);
+                }
+            } catch (e) {
+                console.log('Cannot dispatch event to parent');
+            }
+
+            console.log('Same-origin test page loaded successfully');
+        </script>
+    </div>
+</body>
+</html>
