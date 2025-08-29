@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,8 +27,20 @@ export default function IframeTool() {
     { message: 'Iframe tool initialized', type: 'success', timestamp: new Date() },
     { message: 'Ready for extraction operations', type: 'info', timestamp: new Date() }
   ]);
+  const [selectedDataExtraction, setSelectedDataExtraction] = useState<string | null>(null);
+  const [selectedQuickPreset, setSelectedQuickPreset] = useState<string | null>(null);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Clear inline styles when selection changes to prevent style conflicts
+  useEffect(() => {
+    const buttons = document.querySelectorAll('[data-testid^="button-gather"], [data-testid="button-form-interaction"], [data-testid^="button-preset"]');
+    buttons.forEach((button) => {
+      const buttonElement = button as HTMLElement;
+      buttonElement.style.backgroundColor = '';
+      buttonElement.style.color = '';
+    });
+  }, [selectedDataExtraction, selectedQuickPreset]);
 
   const logToConsole = (message: string, type: 'info' | 'error' | 'warning' | 'success' = 'info') => {
     setConsoleEntries(prev => [...prev, { message, type, timestamp: new Date() }]);
@@ -80,6 +92,7 @@ export default function IframeTool() {
   };
 
   const loadPreset = (preset: string) => {
+    setSelectedQuickPreset(preset);
     const presets = {
       'same-origin': './test-pages/same-origin.html',
       'form-test': './test-pages/form-test.html',
@@ -101,6 +114,7 @@ export default function IframeTool() {
   };
 
   const gatherBasicInfo = () => {
+    setSelectedDataExtraction('basic');
     const iframe = iframeRef.current;
     if (!iframe) return;
 
@@ -141,6 +155,7 @@ export default function IframeTool() {
   };
 
   const gatherDocumentInfo = () => {
+    setSelectedDataExtraction('document');
     const iframe = iframeRef.current;
     if (!iframe) return;
 
@@ -188,6 +203,7 @@ export default function IframeTool() {
   };
 
   const gatherNetworkInfo = () => {
+    setSelectedDataExtraction('network');
     const iframe = iframeRef.current;
     if (!iframe) return;
 
@@ -237,6 +253,7 @@ export default function IframeTool() {
   };
 
   const attemptFormInteraction = () => {
+    setSelectedDataExtraction('form');
     const iframe = iframeRef.current;
     if (!iframe) return;
 
@@ -291,6 +308,8 @@ export default function IframeTool() {
   };
 
   const clearResults = () => {
+    // Reset selection state when clearing results
+    setSelectedDataExtraction(null);
     setResults([]);
     logToConsole('Results cleared', 'info');
   };
@@ -353,32 +372,80 @@ export default function IframeTool() {
                     <Button
                       data-testid="button-preset-same-origin"
                       onClick={() => loadPreset('same-origin')}
-                      variant="secondary"
-                      className="justify-start text-sm h-10"
+                      variant={selectedQuickPreset === 'same-origin' ? 'default' : 'secondary'}
+                      className="justify-start text-sm h-10 cursor-pointer transition-colors duration-200"
+                      onMouseEnter={(e) => {
+                        if (selectedQuickPreset !== 'same-origin') {
+                          e.currentTarget.style.backgroundColor = '#4d576d';
+                          e.currentTarget.style.color = 'white';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedQuickPreset !== 'same-origin') {
+                          e.currentTarget.style.backgroundColor = '';
+                          e.currentTarget.style.color = '';
+                        }
+                      }}
                     >
                       🏠 Same Origin HTML
                     </Button>
                     <Button
                       data-testid="button-preset-form-test"
                       onClick={() => loadPreset('form-test')}
-                      variant="secondary"
-                      className="justify-start text-sm h-10"
+                      variant={selectedQuickPreset === 'form-test' ? 'default' : 'secondary'}
+                      className="justify-start text-sm h-10 cursor-pointer transition-colors duration-200"
+                      onMouseEnter={(e) => {
+                        if (selectedQuickPreset !== 'form-test') {
+                          e.currentTarget.style.backgroundColor = '#4d576d';
+                          e.currentTarget.style.color = 'white';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedQuickPreset !== 'form-test') {
+                          e.currentTarget.style.backgroundColor = '';
+                          e.currentTarget.style.color = '';
+                        }
+                      }}
                     >
                       📝 Form Test Page
                     </Button>
                     <Button
                       data-testid="button-preset-blocked-test"
                       onClick={() => loadPreset('blocked-test')}
-                      variant="secondary"
-                      className="justify-start text-sm h-10"
+                      variant={selectedQuickPreset === 'blocked-test' ? 'default' : 'secondary'}
+                      className="justify-start text-sm h-10 cursor-pointer transition-colors duration-200"
+                      onMouseEnter={(e) => {
+                        if (selectedQuickPreset !== 'blocked-test') {
+                          e.currentTarget.style.backgroundColor = '#4d576d';
+                          e.currentTarget.style.color = 'white';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedQuickPreset !== 'blocked-test') {
+                          e.currentTarget.style.backgroundColor = '';
+                          e.currentTarget.style.color = '';
+                        }
+                      }}
                     >
                       🚫 Blocked by X-Frame-Options
                     </Button>
                     <Button
                       data-testid="button-preset-data-url"
                       onClick={() => loadPreset('data-url')}
-                      variant="secondary"
-                      className="justify-start text-sm h-10"
+                      variant={selectedQuickPreset === 'data-url' ? 'default' : 'secondary'}
+                      className="justify-start text-sm h-10 cursor-pointer transition-colors duration-200"
+                      onMouseEnter={(e) => {
+                        if (selectedQuickPreset !== 'data-url') {
+                          e.currentTarget.style.backgroundColor = '#4d576d';
+                          e.currentTarget.style.color = 'white';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (selectedQuickPreset !== 'data-url') {
+                          e.currentTarget.style.backgroundColor = '';
+                          e.currentTarget.style.color = '';
+                        }
+                      }}
                     >
                       📄 Data URL Content
                     </Button>
@@ -398,31 +465,80 @@ export default function IframeTool() {
                 <Button
                   data-testid="button-gather-basic"
                   onClick={gatherBasicInfo}
-                  className="justify-start text-sm h-10"
+                  variant={selectedDataExtraction === 'basic' ? 'default' : 'secondary'}
+                  className="justify-start text-sm h-10 cursor-pointer transition-colors duration-200"
+                  onMouseEnter={(e) => {
+                    if (selectedDataExtraction !== 'basic') {
+                      e.currentTarget.style.backgroundColor = '#4d576d';
+                      e.currentTarget.style.color = 'white';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedDataExtraction !== 'basic') {
+                      e.currentTarget.style.backgroundColor = '';
+                      e.currentTarget.style.color = '';
+                    }
+                  }}
                 >
                   ℹ️ Basic Properties
                 </Button>
                 <Button
                   data-testid="button-gather-document"
                   onClick={gatherDocumentInfo}
-                  variant="secondary"
-                  className="justify-start text-sm h-10"
+                  variant={selectedDataExtraction === 'document' ? 'default' : 'secondary'}
+                  className="justify-start text-sm h-10 cursor-pointer transition-colors duration-200"
+                  onMouseEnter={(e) => {
+                    if (selectedDataExtraction !== 'document') {
+                      e.currentTarget.style.backgroundColor = '#4d576d';
+                      e.currentTarget.style.color = 'white';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedDataExtraction !== 'document') {
+                      e.currentTarget.style.backgroundColor = '';
+                      e.currentTarget.style.color = '';
+                    }
+                  }}
                 >
                   📄 Document Content
                 </Button>
                 <Button
                   data-testid="button-gather-network"
                   onClick={gatherNetworkInfo}
-                  variant="secondary"
-                  className="justify-start text-sm h-10"
+                  variant={selectedDataExtraction === 'network' ? 'default' : 'secondary'}
+                  className="justify-start text-sm h-10 cursor-pointer transition-colors duration-200"
+                  onMouseEnter={(e) => {
+                    if (selectedDataExtraction !== 'network') {
+                      e.currentTarget.style.backgroundColor = '#4d576d';
+                      e.currentTarget.style.color = 'white';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedDataExtraction !== 'network') {
+                      e.currentTarget.style.backgroundColor = '';
+                      e.currentTarget.style.color = '';
+                    }
+                  }}
                 >
                   🌐 Network Details
                 </Button>
                 <Button
                   data-testid="button-form-interaction"
                   onClick={attemptFormInteraction}
-                  variant="secondary"
-                  className="justify-start text-sm h-10"
+                  variant={selectedDataExtraction === 'form' ? 'default' : 'secondary'}
+                  className="justify-start text-sm h-10 cursor-pointer transition-colors duration-200"
+                  onMouseEnter={(e) => {
+                    if (selectedDataExtraction !== 'form') {
+                      e.currentTarget.style.backgroundColor = '#4d576d';
+                      e.currentTarget.style.color = 'white';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedDataExtraction !== 'form') {
+                      e.currentTarget.style.backgroundColor = '';
+                      e.currentTarget.style.color = '';
+                    }
+                  }}
                 >
                   ✏️ Form Interaction
                 </Button>
@@ -430,7 +546,7 @@ export default function IframeTool() {
                   data-testid="button-clear-results"
                   onClick={clearResults}
                   variant="destructive"
-                  className="justify-start text-sm h-10"
+                  className="justify-start text-sm h-10 cursor-pointer hover:bg-red-100 hover:text-red-800 transition-colors duration-200"
                 >
                   🗑️ Clear Results
                 </Button>
@@ -519,9 +635,9 @@ export default function IframeTool() {
                       <Card
                         key={index}
                         className={`p-4 bg-card border ${result.type === 'error' ? 'border-destructive bg-red-950/20' :
-                            result.type === 'warning' ? 'border-yellow-500 bg-yellow-950/20' :
-                              result.type === 'success' ? 'border-green-500 bg-green-950/20' :
-                                'border-border'
+                          result.type === 'warning' ? 'border-yellow-500 bg-yellow-950/20' :
+                            result.type === 'success' ? 'border-green-500 bg-green-950/20' :
+                              'border-border'
                           }`}
                         data-testid={`result-${index}`}
                       >
