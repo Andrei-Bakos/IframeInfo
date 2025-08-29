@@ -53,11 +53,11 @@ export default function IframeTool() {
 
     if (iframeRef.current) {
       iframeRef.current.src = iframeUrl;
-      
+
       iframeRef.current.onload = () => {
         updateStatus('Loaded', 'success');
         logToConsole('Iframe loaded successfully', 'success');
-        
+
         // Check if iframe was actually blocked
         setTimeout(() => {
           try {
@@ -91,11 +91,11 @@ export default function IframeTool() {
     if (presets[preset as keyof typeof presets]) {
       const url = presets[preset as keyof typeof presets];
       setIframeUrl(url);
-      
+
       if (preset === 'blocked-test') {
         logToConsole('Loading blocked test page (demonstrates X-Frame-Options: DENY)', 'warning');
       }
-      
+
       setTimeout(loadIframe, 100);
     }
   };
@@ -332,7 +332,7 @@ export default function IframeTool() {
                 <ExternalLink className="text-primary mr-2 h-5 w-5" />
                 Iframe Configuration
               </h3>
-              
+
               <div className="space-y-3">
                 <div>
                   <Label htmlFor="iframe-url" className="text-sm font-medium text-muted-foreground">Source URL</Label>
@@ -346,7 +346,7 @@ export default function IframeTool() {
                     className="mt-1"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <span className="text-sm font-medium text-muted-foreground">Quick Presets</span>
                   <div className="grid grid-cols-1 gap-2">
@@ -393,7 +393,7 @@ export default function IframeTool() {
                 <Terminal className="text-primary mr-2 h-5 w-5" />
                 Data Extraction
               </h3>
-              
+
               <div className="grid grid-cols-1 gap-2">
                 <Button
                   data-testid="button-gather-basic"
@@ -475,8 +475,8 @@ export default function IframeTool() {
                 <Badge
                   variant={
                     iframeStatus.type === 'error' ? 'destructive' :
-                    iframeStatus.type === 'warning' ? 'secondary' :
-                    iframeStatus.type === 'success' ? 'default' : 'secondary'
+                      iframeStatus.type === 'warning' ? 'secondary' :
+                        iframeStatus.type === 'success' ? 'default' : 'secondary'
                   }
                   data-testid="status-iframe"
                 >
@@ -484,7 +484,7 @@ export default function IframeTool() {
                 </Badge>
               </div>
             </div>
-            
+
             <div className="iframe-container bg-white rounded-lg border-2 border-border">
               <iframe
                 ref={iframeRef}
@@ -505,7 +505,7 @@ export default function IframeTool() {
                   <Terminal className="text-primary mr-2 h-5 w-5" />
                   Extraction Results
                 </h3>
-                
+
                 <div className="space-y-4" data-testid="results-container">
                   {results.length === 0 ? (
                     <Card className="p-4 bg-card border border-border">
@@ -518,19 +518,18 @@ export default function IframeTool() {
                     results.map((result, index) => (
                       <Card
                         key={index}
-                        className={`p-4 bg-card border ${
-                          result.type === 'error' ? 'border-destructive bg-red-950/20' :
-                          result.type === 'warning' ? 'border-yellow-500 bg-yellow-950/20' :
-                          result.type === 'success' ? 'border-green-500 bg-green-950/20' :
-                          'border-border'
-                        }`}
+                        className={`p-4 bg-card border ${result.type === 'error' ? 'border-destructive bg-red-950/20' :
+                            result.type === 'warning' ? 'border-yellow-500 bg-yellow-950/20' :
+                              result.type === 'success' ? 'border-green-500 bg-green-950/20' :
+                                'border-border'
+                          }`}
                         data-testid={`result-${index}`}
                       >
                         <h4 className="font-medium mb-2 flex items-center">
                           {result.type === 'error' ? <ExternalLink className="h-4 w-4 text-destructive" /> :
-                           result.type === 'success' ? <Shield className="h-4 w-4 text-green-500" /> :
-                           result.type === 'warning' ? <ExternalLink className="h-4 w-4 text-yellow-500" /> :
-                           <Shield className="h-4 w-4 text-blue-500" />}
+                            result.type === 'success' ? <Shield className="h-4 w-4 text-green-500" /> :
+                              result.type === 'warning' ? <ExternalLink className="h-4 w-4 text-yellow-500" /> :
+                                <Shield className="h-4 w-4 text-blue-500" />}
                           <span className="ml-2">{result.title}</span>
                           <Badge
                             variant={result.type === 'error' ? 'destructive' : 'secondary'}
@@ -554,7 +553,7 @@ export default function IframeTool() {
                   <Terminal className="text-primary mr-2 h-5 w-5" />
                   Console Output
                 </h3>
-                
+
                 <Card className="bg-card border border-border">
                   <div className="p-3 border-b border-border">
                     <div className="flex items-center justify-between">
@@ -575,9 +574,9 @@ export default function IframeTool() {
                     {consoleEntries.map((entry, index) => (
                       <div key={index} className={
                         entry.type === 'error' ? 'status-error' :
-                        entry.type === 'warning' ? 'status-warning' :
-                        entry.type === 'success' ? 'status-success' :
-                        'text-muted-foreground'
+                          entry.type === 'warning' ? 'status-warning' :
+                            entry.type === 'success' ? 'status-success' :
+                              'text-muted-foreground'
                       }>
                         <span className="text-primary">
                           [{entry.timestamp.toLocaleTimeString()}]
