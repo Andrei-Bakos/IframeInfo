@@ -59,11 +59,24 @@ export default function IframeTool() {
       iframeRef.current.onload = () => {
         updateStatus('Loaded', 'success');
         logToConsole('Iframe loaded successfully', 'success');
+        
+        // Check if iframe was actually blocked
+        setTimeout(() => {
+          try {
+            const iframeDocument = iframeRef.current?.contentDocument;
+            if (!iframeDocument && iframeUrl.startsWith('http')) {
+              logToConsole('⚠️ Content may be blocked by X-Frame-Options or CSP headers', 'warning');
+              updateStatus('Content Blocked', 'warning');
+            }
+          } catch (e) {
+            logToConsole('Cross-origin access restrictions detected', 'info');
+          }
+        }, 1000);
       };
 
       iframeRef.current.onerror = () => {
-        updateStatus('Error', 'error');
-        logToConsole('Failed to load iframe', 'error');
+        updateStatus('Load Error', 'error');
+        logToConsole('Failed to load iframe - this could be due to network issues or security headers', 'error');
       };
     }
   };
@@ -73,12 +86,18 @@ export default function IframeTool() {
       'same-origin': '/api/test-pages/same-origin',
       'form-test': '/api/test-pages/form-test',
       'secure-test': '/api/test-pages/secure-test',
-      'google': 'https://www.google.com',
-      'github': 'https://github.com'
+      'blocked-test': '/api/test-pages/blocked',
+      'data-url': 'data:text/html,<h1 style="font-family: Arial; color: %23333; padding: 20px;">Sample Data URL</h1><p style="font-family: Arial; color: %23666; padding: 0 20px;">This is content from a data URL - fully accessible.</p><script>console.log("Data URL script executed");</script>'
     };
 
     if (presets[preset as keyof typeof presets]) {
-      setIframeUrl(presets[preset as keyof typeof presets]);
+      const url = presets[preset as keyof typeof presets];
+      setIframeUrl(url);
+      
+      if (preset === 'blocked-test') {
+        logToConsole('Loading blocked test page (demonstrates X-Frame-Options: DENY)', 'warning');
+      }
+      
       setTimeout(loadIframe, 100);
     }
   };
@@ -90,7 +109,7 @@ export default function IframeTool() {
     logToConsole('Attempting to gather basic iframe information...');
 
     try {
-      const info = {
+      const info: Record<string, string> = {
         'Source URL': iframe.src,
         'Content Window': iframe.contentWindow ? 'Available' : 'Not Available',
         'Width': iframe.offsetWidth + 'px',
@@ -136,7 +155,7 @@ export default function IframeTool() {
         throw new Error('Document access blocked (likely cross-origin)');
       }
 
-      const info = {
+      const info: Record<string, string> = {
         'Title': doc.title || 'No title',
         'URL': doc.URL,
         'Domain': doc.domain,
@@ -177,7 +196,7 @@ export default function IframeTool() {
     logToConsole('Gathering network and security information...');
 
     try {
-      const info = {
+      const info: Record<string, string> = {
         'Iframe Source': iframe.src,
         'Current Origin': window.location.origin,
         'Protocol': window.location.protocol,
@@ -235,7 +254,7 @@ export default function IframeTool() {
       const forms = doc.forms;
       const inputs = doc.getElementsByTagName('input');
 
-      const info = {
+      const info: Record<string, string> = {
         'Forms Found': forms.length.toString(),
         'Input Elements': inputs.length.toString()
       };
@@ -248,7 +267,9 @@ export default function IframeTool() {
 
         // Try to fill inputs
         let filledInputs = 0;
-        for (let input of firstForm.getElementsByTagName('input')) {
+        const formInputs = firstForm.getElementsByTagName('input');
+        for (let i = 0; i < formInputs.length; i++) {
+          const input = formInputs[i];
           if (input.type === 'text' || input.type === 'email') {
             input.value = `Test value ${Math.random().toString(36).substring(7)}`;
             filledInputs++;
@@ -348,12 +369,20 @@ export default function IframeTool() {
                       📝 Form Test Page
                     </Button>
                     <Button
-                      data-testid="button-preset-google"
-                      onClick={() => loadPreset('google')}
+                      data-testid="button-preset-blocked-test"
+                      onClick={() => loadPreset('blocked-test')}
                       variant="secondary"
                       className="justify-start text-sm h-10"
                     >
-                      ⚠️ Cross-Origin (Google)
+                      🚫 Blocked by X-Frame-Options
+                    </Button>
+                    <Button
+                      data-testid="button-preset-data-url"
+                      onClick={() => loadPreset('data-url')}
+                      variant="secondary"
+                      className="justify-start text-sm h-10"
+                    >
+                      📄 Data URL Content
                     </Button>
                   </div>
                 </div>
@@ -420,7 +449,9 @@ export default function IframeTool() {
                 <li>• Same-origin: Full access</li>
                 <li>• Cross-origin: Restricted access</li>
                 <li>• CORS policies apply</li>
-                <li>• X-Frame-Options blocking</li>
+                <li>• X-Frame-Options: DENY blocks iframes</li>
+                <li>• External sites (Google, etc.) often block embedding</li>
+                <li>• Use test presets to see different behaviors</li>
               </ul>
             </Card>
           </div>
